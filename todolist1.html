@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Connexion</title>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    margin-top: 100px;
+}
+
+input {
+    padding: 10px;
+    margin: 5px;
+    width: 200px;
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+}
+</style>
+
+</head>
+<body>
+
+<h2>Connexion / Inscription</h2>
+
+<input type="text" id="name" placeholder="Nom"><br>
+<input type="email" id="email" placeholder="Email"><br>
+<input type="password" id="password" placeholder="Mot de passe"><br>
+
+<button onclick="register()">S'inscrire</button>
+<button onclick="login()">Se connecter</button>
+
+<script>
+function register() {
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    if (!name || !email || !password) {
+        alert("Remplis tous les champs !");
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    let exist = users.find(u => u.email === email);
+    if (exist) {
+        alert("Email déjà utilisé !");
+        return;
+    }
+
+    users.push({ name, email, password });
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Inscription réussie !");
+}
+
+function login() {
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    let user = users.find(u => u.email === email && u.password === password);
+
+    if (!user) {
+        alert("Email ou mot de passe incorrect !");
+        return;
+    }
+
+    localStorage.setItem("currentUser", JSON.stringify(user));
+
+    window.location.href = "todolist.html";
+}
+</script>
+
+</body>
+</html>

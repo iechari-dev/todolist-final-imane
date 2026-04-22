@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Todo List - TP2</title>
+
+<link rel="stylesheet" href="todolist.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+.urgent {
+    background-color: #ffb3b3;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Ma Todo List</h1>
+
+<h2 id="welcome"></h2>
+<button onclick="logout()">Déconnexion</button>
+
+<input type="text" id="taskInput" placeholder="Nom de la tâche">
+<button onclick="addTask()"><i class='fa-solid fa-plus'></i></button>
+
+<ul id="taskList"></ul>
+
+<script>
+
+
+let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if (!currentUser) {
+    window.location.href = "todolist1.html";
+}
+
+document.getElementById("welcome").innerText = "Bonjour " + currentUser.name;
+
+
+let allTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = allTasks.filter(t => t.user === currentUser.email);
+
+
+function addTask() {
+    let name = document.getElementById("taskInput").value;
+
+    if (name === "") {
+        alert("La tâche est vide !");
+        return;
+    }
+
+    let task = {
+        name: name,
+        done: false,
+        urgent: false,
+        user: currentUser.email
+    };
+
+    tasks.push(task);
+    document.getElementById("taskInput").value = "";
+
+    displayTasks();
+}
+
+
+function displayTasks() {
+    let list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    for (let i = 0; i < tasks.length; i++) {
+
+        let li = document.createElement("li");
+
+        if (tasks[i].urgent) {
+            li.classList.add("urgent");
+        }
+
+        li.innerHTML =
+            tasks[i].name + " - " +
+            (tasks[i].done ? "Terminée" : "Non terminée") +
+            (tasks[i].urgent ? " 🔥 Urgente" : "") +
+
+            " <button onclick='toggleDone(" + i + ")'><i class='fa-solid fa-arrows-rotate'></i></button>" +
+            " <button onclick='toggleUrgent(" + i + ")'><i class='fa-solid fa-exclamation'></i></button>" +
+            " <button onclick='editTask(" + i + ")'><i class='fa-solid fa-wand-magic-sparkles'></i></button>" +
+            " <button onclick='deleteTask(" + i + ")'><i class='fa-solid fa-delete-left'></i></button>";
+
+        list.appendChild(li);
+    }
+
+    
+    let otherTasks = allTasks.filter(t => t.user !== currentUser.email);
+    localStorage.setItem("tasks", JSON.stringify([...otherTasks, ...tasks]));
+}
+
+
+function deleteTask(index) {
+    tasks.splice(index, 1);
+    displayTasks();
+}
+
+
+function toggleDone(index) {
+    tasks[index].done = !tasks[index].done;
+    displayTasks();
+}
+
+
+function toggleUrgent(index) {
+    tasks[index].urgent = !tasks[index].urgent;
+    displayTasks();
+}
+
+
+function editTask(index) {
+    let newName = prompt("Modifier la tâche :", tasks[index].name);
+
+    if (newName === null || newName === "") {
+        return;
+    }
+
+    tasks[index].name = newName;
+    displayTasks();
+}
+
+
+function logout() {
+    localStorage.removeItem("currentUser");
+    window.location.href = "todolist1.html";
+}
+
+
+displayTasks();
+
+</script>
+
+</body>
+</html>
